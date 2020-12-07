@@ -1,4 +1,4 @@
-package com.codeadd.gitresearch
+package com.codeadd.gitresearch.viewModel
 
 import androidx.lifecycle.ViewModel
 

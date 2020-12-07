@@ -1,7 +1,8 @@
-package com.codeadd.gitresearch
+package com.codeadd.gitresearch.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.codeadd.gitresearch.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
