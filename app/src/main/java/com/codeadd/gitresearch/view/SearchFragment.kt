@@ -1,4 +1,4 @@
-package com.codeadd.gitresearch
+package com.codeadd.gitresearch.view
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.codeadd.gitresearch.R
+import com.codeadd.gitresearch.viewModel.SearchViewModel
 
 class SearchFragment : Fragment() {
 
