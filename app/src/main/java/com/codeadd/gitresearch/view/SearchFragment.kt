@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.search_fragment.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.SearchAdapter
+import com.codeadd.gitresearch.utils.SoftKeyboard
 import com.codeadd.gitresearch.viewModel.SearchViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -76,9 +77,22 @@ class SearchFragment : Fragment() {
                 .distinctUntilChanged()
                 .onEach { viewModel.getRepoList(it)}
                 .launchIn(lifecycleScope)
+
+        //Hide keyboard when click/scroll on recycler view
+        recyclerView_search.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> SoftKeyboard.hide(requireActivity(),requireView())
+                    MotionEvent.ACTION_UP -> SoftKeyboard.hide(requireActivity(),requireView())
+                }
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+        //Hide when touched outside of search edit text
+        fragment_search.setOnClickListener { v -> SoftKeyboard.hide(requireActivity(),v) }
     }
 
-    //Using Flow for debounce requests
+    //Using Flow for debounce feature
     @ExperimentalCoroutinesApi
     @CheckResult
     fun EditText.textChanged(): Flow<String> = channelFlow {
