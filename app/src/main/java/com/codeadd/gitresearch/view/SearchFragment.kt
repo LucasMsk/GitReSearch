@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.viewModel.SearchViewModel
 
