@@ -12,7 +12,7 @@ object RetrofitObject {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .build() //Doesn't require the adapter
+            .build()
     }
 
     //Creating only one instance of retrofit for whole Application Lifecycle
