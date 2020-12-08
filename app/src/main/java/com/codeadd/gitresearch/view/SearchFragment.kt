@@ -2,17 +2,28 @@ package com.codeadd.gitresearch.view
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.*
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
+import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.search_fragment.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.SearchAdapter
 import com.codeadd.gitresearch.viewModel.SearchViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 
 class SearchFragment : Fragment() {
 
@@ -30,10 +41,14 @@ class SearchFragment : Fragment() {
         return inflater.inflate(R.layout.search_fragment, container, false)
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
         setupRecyclerView()
+        setupObservers()
+        setupListeners()
     }
 
     private fun setupRecyclerView() {
@@ -42,4 +57,45 @@ class SearchFragment : Fragment() {
         recyclerView_search.adapter = searchAdapter
     }
 
+    private fun setupObservers() {
+        viewModel.repoList.observe(viewLifecycleOwner, Observer {
+            searchAdapter.setRepoList(it.items)
+        })
+        viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
+        })
+    }
+
+
+    private fun setupListeners() {
+        //Live text change search. Using Flow eliminates need to include rxjava package for debounce feature
+        txt_searchBar.textChanged()
+                .distinctUntilChanged()
+                .filterNot { it.isBlank() }
+                .debounce(500)
+                .distinctUntilChanged()
+                .onEach { viewModel.getRepoList(it)}
+                .launchIn(lifecycleScope)
+    }
+
+    //Using Flow for debounce requests
+    @ExperimentalCoroutinesApi
+    @CheckResult
+    fun EditText.textChanged(): Flow<String> = channelFlow {
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                offer(p0.toString())
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        }
+        addTextChangedListener(textWatcher)
+        awaitClose {
+            removeTextChangedListener(textWatcher)
+        }
+    }
 }
