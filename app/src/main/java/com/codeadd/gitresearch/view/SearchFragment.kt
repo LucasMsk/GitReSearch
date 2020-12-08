@@ -75,7 +75,13 @@ class SearchFragment : Fragment() {
                 .filterNot { it.isBlank() }
                 .debounce(500)
                 .distinctUntilChanged()
-                .onEach { viewModel.getRepoList(it)}
+                .onEach {
+                    //Do not search again going back from DetailFragment
+                    if(viewModel.lastSearch.value != it) {
+                    //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
+                        viewModel.lastSearch.value = ""
+                        viewModel.getRepoList(it)
+                    }}
                 .launchIn(lifecycleScope)
 
         //Hide keyboard when click/scroll on recycler view
@@ -110,5 +116,11 @@ class SearchFragment : Fragment() {
         awaitClose {
             removeTextChangedListener(textWatcher)
         }
+    }
+
+    override fun onDestroyView() {
+        //Do not search again going back from DetailFragment
+        viewModel.lastSearch.value = txt_searchBar.text.toString()
+        super.onDestroyView()
     }
 }
