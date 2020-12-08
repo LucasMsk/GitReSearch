@@ -16,6 +16,11 @@ class SearchAdapter(private val context: Context) : RecyclerView.Adapter<SearchA
 
     private var repoList: List<Repo> = ArrayList()
 
+    fun setRepoList(list: List<Repo>) {
+        this.repoList = list
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val repoName = view.txt_repo_name
         val starsCount = view.txt_stars_count
