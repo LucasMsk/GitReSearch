@@ -13,6 +13,11 @@ class CommitAdapter(private val context: Context) : RecyclerView.Adapter<CommitA
 
     private var commitList: List<CommitResponse> = ArrayList()
 
+    fun setCommitList(list: List<CommitResponse>) {
+        this.commitList = list
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val authorName = view.txt_commit_authorName
         val authorEmail = view.txt_commit_authorEmail

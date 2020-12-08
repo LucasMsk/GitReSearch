@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GitReSearch</string>
+    <string name="number_stars">Number of Stars (%d)</string>
 </resources>

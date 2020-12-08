@@ -13,6 +13,7 @@ class SearchViewModel : ViewModel() {
     val searchRepository = SearchRepository()
     val repoList = MutableLiveData<SearchResponse>()
     val errorMsg = MutableLiveData<String>()
+    var lastSearch = MutableLiveData<String>()
 
     fun getRepoList(searchString: String) {
         viewModelScope.launch {
