@@ -42,8 +42,6 @@ class SearchFragment : Fragment() {
         return inflater.inflate(R.layout.search_fragment, container, false)
     }
 
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(SearchViewModel::class.java)
@@ -68,6 +66,8 @@ class SearchFragment : Fragment() {
     }
 
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun setupListeners() {
         //Live text change search. Using Flow eliminates need to include rxjava package for debounce feature
         txt_searchBar.textChanged()
@@ -79,15 +79,14 @@ class SearchFragment : Fragment() {
                 .launchIn(lifecycleScope)
 
         //Hide keyboard when click/scroll on recycler view
-        recyclerView_search.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                when (event?.action) {
-                    MotionEvent.ACTION_DOWN -> SoftKeyboard.hide(requireActivity(),requireView())
-                    MotionEvent.ACTION_UP -> SoftKeyboard.hide(requireActivity(),requireView())
-                }
-                return v?.onTouchEvent(event) ?: true
+        recyclerView_search.setOnTouchListener { v, event ->
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> SoftKeyboard.hide(requireActivity(), requireView())
+                MotionEvent.ACTION_UP -> SoftKeyboard.hide(requireActivity(), requireView())
             }
-        })
+            v.performClick()
+            v?.onTouchEvent(event) ?: true
+        }
         //Hide when touched outside of search edit text
         fragment_search.setOnClickListener { v -> SoftKeyboard.hide(requireActivity(),v) }
     }
