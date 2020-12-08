@@ -1,13 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.SearchFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".view.SearchFragment"
+    android:orientation="vertical"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:clickable="false">
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/empty_focusable"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
+    <TextView
+        android:layout_marginTop="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="34sp"
+        android:textColor="@color/black"
+        android:lineSpacingExtra="7sp"
+        android:text="Search"/>
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/txt_searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/search_icon"
+        android:drawablePadding="16dp"
+        android:padding="7dp"
+        android:paddingLeft="10dp"
+        android:hint="Search"
+        android:inputType="textVisiblePassword"
+        android:textColorHighlight="@color/colorAccent"
+        android:textColor="@color/black"
+        android:background="@drawable/shape_round"
+        android:layout_margin="7dp"
+        android:imeOptions="actionDone"
+        android:paddingStart="10dp" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:textColor="@color/black"
+        android:lineSpacingExtra="6sp"
+        android:text="Repositories"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="18dp"/>
 
-</FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_search"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="1dp"
+        android:focusableInTouchMode="true">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+</LinearLayout>
