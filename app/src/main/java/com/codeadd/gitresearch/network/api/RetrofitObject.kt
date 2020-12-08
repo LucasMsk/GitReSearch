@@ -25,6 +25,11 @@ object RetrofitObject {
             if (myResp.isSuccessful) {
                 Result.Success(myResp.body()!!)
             }
+
+            else if(myResp.code() == 403) {
+                Result.Error("Too much search requests. Wait a second")
+            }
+
             else {
                 Result.Error( "Check internet connection")
             }
