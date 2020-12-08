@@ -38,7 +38,7 @@
         android:paddingLeft="10dp"
         android:hint="Search"
         android:inputType="textVisiblePassword"
-        android:textColorHighlight="@color/colorDetails"
+        android:textColorHighlight="@color/colorAccent"
         android:textColor="@color/black"
         android:background="@drawable/shape_round"
         android:layout_margin="7dp"
