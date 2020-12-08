@@ -9,12 +9,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.app.ShareCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.codeadd.gitresearch.viewModel.DetailViewModel
 import com.codeadd.gitresearch.R
+import com.codeadd.gitresearch.adapter.CommitAdapter
 import com.codeadd.gitresearch.model.Detail
 import com.codeadd.gitresearch.utils.SoftKeyboard
 import kotlinx.android.synthetic.main.detail_fragment.*
@@ -27,6 +32,7 @@ class DetailFragment : Fragment() {
     }
 
     private lateinit var viewModel: DetailViewModel
+    private lateinit var commitAdapter: CommitAdapter
     private val args: DetailFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -41,8 +47,12 @@ class DetailFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
         SoftKeyboard.hide(requireActivity())
-        setupListeners(args.detail.repoUrl)
-        populateViews(requireView(), args.detail)
+        val detail = args.detail
+        setupListeners(detail.repoUrl)
+        populateViews(requireView(), detail)
+        setupRecyclerView()
+        setupObservers()
+        viewModel.getCommitList(detail.fullName)
     }
 
     private fun populateViews(view: View, detail: Detail) {
@@ -54,7 +64,7 @@ class DetailFragment : Fragment() {
             view.txt_details_author.text = detail.fullName
             view.txt_details_repo_title.text = detail.fullName
         }
-        view.txt_details_stars.text = detail.starCount.toString()
+        view.txt_details_stars.text = getString(R.string.number_stars,detail.starCount)
         Glide.with(requireContext())
             .load(detail.avatarUrl)
             .into(view.img_details_avatar)
@@ -76,6 +86,22 @@ class DetailFragment : Fragment() {
                     .setText(url)
                     .startChooser();
         }
+    }
+
+    private fun setupRecyclerView() {
+        recyclerView_commit.layoutManager = LinearLayoutManager(context)
+        recyclerView_commit.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        commitAdapter = CommitAdapter(requireContext())
+        recyclerView_commit.adapter = commitAdapter
+    }
+
+    private fun setupObservers() {
+        viewModel.commitList.observe(viewLifecycleOwner, Observer {
+            commitAdapter.setCommitList(it)
+        })
+        viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
+        })
     }
 
     override fun onDestroy() {

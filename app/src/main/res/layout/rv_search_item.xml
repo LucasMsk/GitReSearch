@@ -21,14 +21,10 @@
         android:layout_centerHorizontal="true"
         android:layout_toRightOf="@id/img_avatar">
     <LinearLayout
-        android:layout_toEndOf="@id/img_avatar"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_toRightOf="@id/img_avatar">
+        android:orientation="vertical">
         <TextView
             android:id="@+id/txt_repo_name"
             android:layout_width="match_parent"
@@ -44,9 +40,11 @@
         <TextView
             android:id="@+id/txt_stars_count"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="25dp"
             android:text="Count"
             android:textSize="17sp"
+            android:paddingBottom="10dp"
+            android:padding="0dp"
             android:textColor="#9e9e9e"
             android:lineSpacingExtra="5sp"
             app:drawableLeftCompat="@drawable/star_icon"
