@@ -8,10 +8,7 @@
     tools:context=".view.SearchFragment"
     android:orientation="vertical"
     android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
-    android:clickable="false">
+    android:layout_marginRight="16dp">
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/empty_focusable"
         android:layout_width="0dp"
@@ -56,14 +53,31 @@
         android:layout_marginTop="30dp"
         android:layout_marginBottom="18dp"/>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_search"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="1dp"
-        android:focusableInTouchMode="true">
+        android:paddingBottom="52dp"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_editor_absoluteX="0dp">
 
     </androidx.recyclerview.widget.RecyclerView>
-
+    <ProgressBar
+        android:id="@+id/progressBar_search"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@id/recyclerView_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.search_fragment.*
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.SearchAdapter
 import com.codeadd.gitresearch.utils.SoftKeyboard
@@ -63,6 +64,21 @@ class SearchFragment : Fragment() {
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
         })
+
+        viewModel.isLoading.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            if(it) {
+                progressBar_search.visibility = View.VISIBLE
+            }
+            else {
+                progressBar_search.visibility = View.INVISIBLE
+            }
+        })
+
+        viewModel.isLastPage.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+
+            if(it) recyclerView_search.setPadding(0,0,0,0)
+            else recyclerView_search.setPadding(0,0,0,52)
+        })
     }
 
 
@@ -75,7 +91,13 @@ class SearchFragment : Fragment() {
                 .filterNot { it.isBlank() }
                 .debounce(500)
                 .distinctUntilChanged()
-                .onEach { viewModel.getRepoList(it)}
+                .onEach {
+                    //Do not search again going back from DetailFragment
+                    if(viewModel.lastSearch.value != it) {
+                    //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
+                        viewModel.lastSearch.value = ""
+                        viewModel.handlePagination(it,true)
+                    }}
                 .launchIn(lifecycleScope)
 
         //Hide keyboard when click/scroll on recycler view
@@ -89,6 +111,30 @@ class SearchFragment : Fragment() {
         }
         //Hide when touched outside of search edit text
         fragment_search.setOnClickListener { v -> SoftKeyboard.hide(requireActivity(),v) }
+
+        //Paginate request listener
+        var scrolling = false
+        val scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val firstItem = layoutManager.findFirstVisibleItemPosition()
+                val visibleItems = layoutManager.childCount
+                val totalItems = layoutManager.itemCount
+                val lastItem = firstItem + visibleItems >= totalItems
+                if(lastItem && firstItem > 0 && scrolling && !txt_searchBar.text.isNullOrBlank()) {
+                    viewModel.handlePagination(txt_searchBar.text.toString(), false)
+                    scrolling = false
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                scrolling = true
+            }
+        }
+        recyclerView_search.addOnScrollListener(scrollListener)
     }
 
     //Using Flow for debounce feature
@@ -110,5 +156,11 @@ class SearchFragment : Fragment() {
         awaitClose {
             removeTextChangedListener(textWatcher)
         }
+    }
+
+    override fun onDestroyView() {
+        //Do not search again going back from DetailFragment
+        viewModel.lastSearch.value = txt_searchBar.text.toString()
+        super.onDestroyView()
     }
 }

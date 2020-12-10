@@ -10,16 +10,57 @@ import com.codeadd.gitresearch.utils.Result
 
 class SearchViewModel : ViewModel() {
 
-    val searchRepository = SearchRepository()
     val repoList = MutableLiveData<SearchResponse>()
     val errorMsg = MutableLiveData<String>()
+    var lastSearch = MutableLiveData<String>()
+    val isLoading = MutableLiveData(false)
+    val isLastPage = MutableLiveData(false)
+    private val searchRepository = SearchRepository()
+    private val totalItemsPerQuery = 30
+    private var paginatedRepoList: SearchResponse? = null
+    private var searchPage = 1
 
-    fun getRepoList(searchString: String) {
+    fun handlePagination(searchString: String, firstCall: Boolean) {
+        if (firstCall) {
+            isLastPage.postValue(false)
+            searchPage = 1
+            paginatedRepoList = null
+            getRepoList(searchString)
+        }
+        else {
+            if(repoList.value != null) {
+                val totalPages = Math.ceil(repoList.value!!.total_count.toDouble()/totalItemsPerQuery).toInt()
+                if (searchPage in 2..totalPages && !isLoading.value!!) {
+                    getRepoList(searchString)
+                    if(searchPage==totalPages)
+                        isLastPage.postValue(true)
+                }
+                else
+                    isLastPage.postValue(true)
+            }
+        }
+    }
+     fun getRepoList(searchString: String) {
+
+         if(searchPage == 1) isLoading.postValue(false)
+         else isLoading.postValue(true)
+
         viewModelScope.launch {
-            val retrofitPost = searchRepository.searchRequest(searchString)
+            val retrofitPost = searchRepository.searchRequest(searchString, searchPage.toString())
             when (retrofitPost) {
                 is Result.Success -> {
-                    repoList.postValue(retrofitPost.data)
+                    isLoading.postValue(false)
+                    if(paginatedRepoList == null) {
+                        paginatedRepoList = retrofitPost.data
+                        searchPage++
+                    }
+                    else {
+                        if(paginatedRepoList != null && !retrofitPost.data.items.isNullOrEmpty()) {
+                            searchPage++
+                            paginatedRepoList!!.items.addAll(retrofitPost.data.items)
+                        }
+                    }
+                    repoList.postValue(paginatedRepoList ?: retrofitPost.data)
                 }
                 is Result.Error -> {
                     errorMsg.postValue(retrofitPost.exception)
