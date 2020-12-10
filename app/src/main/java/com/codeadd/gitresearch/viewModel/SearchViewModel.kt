@@ -46,8 +46,7 @@ class SearchViewModel : ViewModel() {
          else isLoading.postValue(true)
 
         viewModelScope.launch {
-            val retrofitPost = searchRepository.searchRequest(searchString, searchPage.toString())
-            when (retrofitPost) {
+            when (val retrofitPost = searchRepository.searchRequest(searchString, searchPage.toString())) {
                 is Result.Success -> {
                     isLoading.postValue(false)
                     if(paginatedRepoList == null) {

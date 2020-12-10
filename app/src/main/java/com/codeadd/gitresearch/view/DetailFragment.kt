@@ -1,6 +1,8 @@
 package com.codeadd.gitresearch.view
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -11,16 +13,19 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.codeadd.gitresearch.viewModel.DetailViewModel
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.CommitAdapter
 import com.codeadd.gitresearch.model.Detail
+import com.codeadd.gitresearch.utils.GlideApp
 import com.codeadd.gitresearch.utils.SoftKeyboard
 import kotlinx.android.synthetic.main.detail_fragment.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
@@ -39,7 +44,12 @@ class DetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        activity?.window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        if (android.os.Build.VERSION.SDK_INT >= 23)
+            requireActivity().window?.decorView?.systemUiVisibility = 1280
+        else
+            requireActivity().window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
         return inflater.inflate(R.layout.detail_fragment, container, false)
     }
 
@@ -65,7 +75,7 @@ class DetailFragment : Fragment() {
             view.txt_details_repo_title.text = detail.fullName
         }
         view.txt_details_stars.text = getString(R.string.number_stars,detail.starCount)
-        Glide.with(requireContext())
+        GlideApp.with(requireContext())
             .load(detail.avatarUrl)
             .into(view.img_details_avatar)
     }
@@ -90,7 +100,7 @@ class DetailFragment : Fragment() {
 
     private fun setupRecyclerView() {
         recyclerView_commit.layoutManager = LinearLayoutManager(context)
-        recyclerView_commit.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        recyclerView_commit.addItemDecoration(DividerItemDecorator(ContextCompat.getDrawable(requireContext(),R.drawable.divider)))
         commitAdapter = CommitAdapter(requireContext())
         recyclerView_commit.adapter = commitAdapter
     }
@@ -104,8 +114,29 @@ class DetailFragment : Fragment() {
         })
     }
 
+    //Remove last divider
+    class DividerItemDecorator(private val divider: Drawable?) : RecyclerView.ItemDecoration() {
+
+        override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            val dividerLeft = parent.paddingLeft
+            val dividerRight = parent.width - parent.paddingRight
+            val childCount = parent.childCount
+            for (i in 0..childCount - 2) {
+                val child: View = parent.getChildAt(i)
+                val params =
+                    child.layoutParams as RecyclerView.LayoutParams
+                val dividerTop: Int = child.bottom + params.bottomMargin
+                val dividerBottom = dividerTop + (divider?.intrinsicHeight?:0)
+                divider?.setBounds(dividerLeft, dividerTop, dividerRight, dividerBottom)
+                divider?.draw(canvas)
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        if (android.os.Build.VERSION.SDK_INT < 23)
+            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 }

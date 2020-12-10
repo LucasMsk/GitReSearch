@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.CheckResult
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.search_fragment.*
@@ -19,10 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.SearchAdapter
+import com.codeadd.gitresearch.model.Repo
+import com.codeadd.gitresearch.utils.GlideApp
 import com.codeadd.gitresearch.utils.SoftKeyboard
 import com.codeadd.gitresearch.viewModel.SearchViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 
@@ -35,11 +37,15 @@ class SearchFragment : Fragment() {
 
     private lateinit var viewModel: SearchViewModel
     private lateinit var searchAdapter: SearchAdapter
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            requireActivity().window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
         return inflater.inflate(R.layout.search_fragment, container, false)
     }
 
@@ -62,16 +68,17 @@ class SearchFragment : Fragment() {
             searchAdapter.setRepoList(it.items)
         })
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
+            if (it != "")
+                Toast.makeText(requireContext(),it,Toast.LENGTH_SHORT).show()
         })
 
         viewModel.isLoading.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+
             if(it) {
                 progressBar_search.visibility = View.VISIBLE
+                GlideApp.get(requireContext()).clearMemory()
             }
-            else {
-                progressBar_search.visibility = View.INVISIBLE
-            }
+            else progressBar_search.visibility = View.INVISIBLE
         })
 
         viewModel.isLastPage.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
@@ -81,24 +88,26 @@ class SearchFragment : Fragment() {
         })
     }
 
-
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     private fun setupListeners() {
-        //Live text change search. Using Flow eliminates need to include rxjava package for debounce feature
-        txt_searchBar.textChanged()
-                .distinctUntilChanged()
-                .filterNot { it.isBlank() }
-                .debounce(500)
-                .distinctUntilChanged()
-                .onEach {
-                    //Do not search again going back from DetailFragment
-                    if(viewModel.lastSearch.value != it) {
+
+        //Handle search text changes
+        txt_searchBar.addTextChangedListener {
+            job?.cancel()
+            job = MainScope().launch {
+                delay(400)
+                val text = it.toString()
+                if(viewModel.lastSearch.value != text && text.isNotEmpty()) {
                     //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
-                        viewModel.lastSearch.value = ""
-                        viewModel.handlePagination(it,true)
-                    }}
-                .launchIn(lifecycleScope)
+                    viewModel.lastSearch.postValue("")
+                    viewModel.handlePagination(text,true)
+                    //Scroll to top
+                    recyclerView_search.scrollToPosition(0)
+                }
+                else if(text.isBlank()) {
+                    searchAdapter.setRepoList(ArrayList<Repo>())
+                }
+            }
+        }
 
         //Hide keyboard when click/scroll on recycler view
         recyclerView_search.setOnTouchListener { v, event ->
@@ -137,28 +146,10 @@ class SearchFragment : Fragment() {
         recyclerView_search.addOnScrollListener(scrollListener)
     }
 
-    //Using Flow for debounce feature
-    @ExperimentalCoroutinesApi
-    @CheckResult
-    fun EditText.textChanged(): Flow<String> = channelFlow {
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                offer(p0.toString())
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        }
-        addTextChangedListener(textWatcher)
-        awaitClose {
-            removeTextChangedListener(textWatcher)
-        }
-    }
-
     override fun onDestroyView() {
+
+        //Do not show previous error msg going back from DetailFragment
+        viewModel.errorMsg.postValue("")
         //Do not search again going back from DetailFragment
         viewModel.lastSearch.value = txt_searchBar.text.toString()
         super.onDestroyView()

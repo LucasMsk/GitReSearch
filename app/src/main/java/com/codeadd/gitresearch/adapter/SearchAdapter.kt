@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.model.Detail
 import com.codeadd.gitresearch.model.Repo
+import com.codeadd.gitresearch.utils.GlideApp
 import com.codeadd.gitresearch.view.SearchFragmentDirections.actionToDetailFragment
 import kotlinx.android.synthetic.main.rv_search_item.view.*
 
@@ -47,8 +49,9 @@ class SearchAdapter(private val context: Context) : RecyclerView.Adapter<SearchA
     override fun onBindViewHolder(holder: SearchAdapter.ViewHolder, position: Int) {
         holder.repoName.text = repoList[position].name
         holder.starsCount.text = repoList[position].stargazers_count.toString()
-        Glide.with(context)
+        GlideApp.with(context)
             .load(repoList[position].owner.avatar_url)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
             .placeholder(R.drawable.shape_round)
             .transform(RoundedCorners(8))
             .override(60,60)
