@@ -16,15 +16,29 @@
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"/>
-    <TextView
+    <LinearLayout
         android:layout_marginTop="45dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="34sp"
         android:textColor="@color/black"
         android:lineSpacingExtra="7sp"
         android:text="@string/search"/>
+        <ProgressBar
+            android:id="@+id/progressBar_search_first"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="invisible"
+            android:layout_marginEnd="10dp" />
+    </LinearLayout>
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/txt_searchBar"
         android:layout_width="match_parent"
