@@ -61,6 +61,7 @@ class SearchViewModel : ViewModel() {
                     repoList.postValue(paginatedRepoList ?: retrofitPost.data)
                 }
                 is Result.Error -> {
+                    isLoading.postValue(false)
                     errorMsg.postValue(retrofitPost.exception)
                 }
             }
