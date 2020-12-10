@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">GitReSearch</string>
     <string name="number_stars">Number of Stars (%d)</string>
+    <string name="repositories">Repositories</string>
+    <string name="search">Search</string>
+    <string name="repo_by">REPO BY</string>
+    <string name="repo_author_name">Repo Author Name</string>
+    <string name="number_of_stars">Number of Stars</string>
+    <string name="view_online">VIEW ONLINE</string>
+    <string name="back">Back</string>
+    <string name="commits_history">Commits History</string>
+    <string name="share_repo">Share Repo</string>
+    <string name="img_avatar">img_avatar</string>
+    <string name="forward_icon">forward_icon</string>
+    <string name="img_stars">img_stars</string>
+    <string name="img_details_avatar">img_details_avatar</string>
 </resources>

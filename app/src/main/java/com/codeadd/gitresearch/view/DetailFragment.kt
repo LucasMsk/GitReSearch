@@ -46,9 +46,9 @@ class DetailFragment : Fragment() {
     ): View? {
 
         if (android.os.Build.VERSION.SDK_INT >= 23)
-            activity?.window?.decorView?.systemUiVisibility = 1280
+            requireActivity().window?.decorView?.systemUiVisibility = 1280
         else
-            activity?.window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            requireActivity().window?.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         return inflater.inflate(R.layout.detail_fragment, container, false)
     }

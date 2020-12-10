@@ -7,6 +7,6 @@ import com.codeadd.gitresearch.utils.Result
 class DetailRepository {
 
     suspend fun commitRequest(fullName: String): Result<List<CommitResponse>> {
-        return RetrofitObject.apiCall(call = { RetrofitObject.apiService.getCommitList(fullName+"/commits") })
+        return RetrofitObject.apiCall(call = { RetrofitObject.apiService.getCommitList("$fullName/commits") })
     }
 }

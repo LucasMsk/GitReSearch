@@ -16,8 +16,7 @@ class DetailViewModel : ViewModel() {
 
     fun getCommitList(fullName: String) {
         viewModelScope.launch {
-            val retrofitPost = detailRepository.commitRequest(fullName)
-            when (retrofitPost) {
+            when (val retrofitPost = detailRepository.commitRequest(fullName)) {
                 is Result.Success -> {
                     commitList.postValue(retrofitPost.data.take(3))
                 }
