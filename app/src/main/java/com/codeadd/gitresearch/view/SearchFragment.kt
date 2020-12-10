@@ -66,6 +66,11 @@ class SearchFragment : Fragment() {
     private fun setupObservers() {
         viewModel.repoList.observe(viewLifecycleOwner, Observer {
             searchAdapter.setRepoList(it.items)
+            if(viewModel.shouldScroll.value!!) {
+                //Scroll to top
+                recyclerView_search.scrollToPosition(0)
+                viewModel.shouldScroll.postValue(false)
+            }
         })
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             if (it != "")
@@ -99,9 +104,8 @@ class SearchFragment : Fragment() {
                 if(viewModel.lastSearch.value != text && text.isNotEmpty()) {
                     //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
                     viewModel.lastSearch.postValue("")
+                    viewModel.shouldScroll.postValue(true)
                     viewModel.handlePagination(text,true)
-                    //Scroll to top
-                    recyclerView_search.scrollToPosition(0)
                 }
                 else if(text.isBlank()) {
                     searchAdapter.setRepoList(ArrayList<Repo>())
@@ -133,6 +137,7 @@ class SearchFragment : Fragment() {
                 val totalItems = layoutManager.itemCount
                 val lastItem = firstItem + visibleItems >= totalItems
                 if(lastItem && firstItem > 0 && scrolling && !txt_searchBar.text.isNullOrBlank()) {
+                    viewModel.shouldScroll.postValue(false)
                     viewModel.handlePagination(txt_searchBar.text.toString(), false)
                     scrolling = false
                 }

@@ -15,6 +15,7 @@ class SearchViewModel : ViewModel() {
     var lastSearch = MutableLiveData<String>()
     val isLoading = MutableLiveData(false)
     val isLastPage = MutableLiveData(false)
+    val shouldScroll = MutableLiveData(false)
     private val searchRepository = SearchRepository()
     private val totalItemsPerQuery = 30
     private var paginatedRepoList: SearchResponse? = null
