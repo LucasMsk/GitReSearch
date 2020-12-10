@@ -94,7 +94,7 @@ class SearchFragment : Fragment() {
         txt_searchBar.addTextChangedListener {
             job?.cancel()
             job = MainScope().launch {
-                delay(400)
+                delay(500)
                 val text = it.toString()
                 if(viewModel.lastSearch.value != text && text.isNotEmpty()) {
                     //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
