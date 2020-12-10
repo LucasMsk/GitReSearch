@@ -142,6 +142,7 @@ class SearchFragment : Fragment() {
                 val totalItems = layoutManager.itemCount
                 val lastItem = firstItem + visibleItems >= totalItems
                 if(lastItem && firstItem > 0 && scrolling && !txt_searchBar.text.isNullOrBlank()) {
+                    recyclerView_search.setPadding(0,0,0,52)
                     viewModel.shouldScrollTop.postValue(false)
                     viewModel.handlePagination(txt_searchBar.text.toString(), false)
                     scrolling = false
