@@ -1,6 +1,8 @@
 package com.codeadd.gitresearch.view
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -11,11 +13,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.codeadd.gitresearch.viewModel.DetailViewModel
 import com.codeadd.gitresearch.R
@@ -91,7 +95,7 @@ class DetailFragment : Fragment() {
 
     private fun setupRecyclerView() {
         recyclerView_commit.layoutManager = LinearLayoutManager(context)
-        recyclerView_commit.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        recyclerView_commit.addItemDecoration(DividerItemDecorator(ContextCompat.getDrawable(requireContext(),R.drawable.divider)))
         commitAdapter = CommitAdapter(requireContext())
         recyclerView_commit.adapter = commitAdapter
     }
@@ -103,6 +107,25 @@ class DetailFragment : Fragment() {
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
         })
+    }
+
+    //Remove last divider
+    class DividerItemDecorator(private val divider: Drawable?) : RecyclerView.ItemDecoration() {
+
+        override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            val dividerLeft = parent.paddingLeft
+            val dividerRight = parent.width - parent.paddingRight
+            val childCount = parent.childCount
+            for (i in 0..childCount - 2) {
+                val child: View = parent.getChildAt(i)
+                val params =
+                    child.layoutParams as RecyclerView.LayoutParams
+                val dividerTop: Int = child.bottom + params.bottomMargin
+                val dividerBottom = dividerTop + (divider?.intrinsicHeight?:0)
+                divider?.setBounds(dividerLeft, dividerTop, dividerRight, dividerBottom)
+                divider?.draw(canvas)
+            }
+        }
     }
 
     override fun onDestroy() {
