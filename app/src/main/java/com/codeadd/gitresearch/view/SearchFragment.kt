@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.SearchAdapter
 import com.codeadd.gitresearch.model.Repo
+import com.codeadd.gitresearch.utils.GlideApp
 import com.codeadd.gitresearch.utils.SoftKeyboard
 import com.codeadd.gitresearch.viewModel.SearchViewModel
 import kotlinx.coroutines.*
@@ -64,12 +65,16 @@ class SearchFragment : Fragment() {
             searchAdapter.setRepoList(it.items)
         })
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            Toast.makeText(requireContext(),it, Toast.LENGTH_LONG).show()
+            if (it != "")
+                Toast.makeText(requireContext(),it,Toast.LENGTH_SHORT).show()
         })
 
         viewModel.isLoading.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            
-            if(it) progressBar_search.visibility = View.VISIBLE
+
+            if(it) {
+                progressBar_search.visibility = View.VISIBLE
+                GlideApp.get(requireContext()).clearMemory()
+            }
             else progressBar_search.visibility = View.INVISIBLE
         })
 
@@ -139,6 +144,9 @@ class SearchFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+
+        //Do not show previous error msg going back from DetailFragment
+        viewModel.errorMsg.postValue("")
         //Do not search again going back from DetailFragment
         viewModel.lastSearch.value = txt_searchBar.text.toString()
         super.onDestroyView()

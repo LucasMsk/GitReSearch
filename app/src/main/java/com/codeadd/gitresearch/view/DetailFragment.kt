@@ -21,6 +21,7 @@ import com.codeadd.gitresearch.viewModel.DetailViewModel
 import com.codeadd.gitresearch.R
 import com.codeadd.gitresearch.adapter.CommitAdapter
 import com.codeadd.gitresearch.model.Detail
+import com.codeadd.gitresearch.utils.GlideApp
 import com.codeadd.gitresearch.utils.SoftKeyboard
 import kotlinx.android.synthetic.main.detail_fragment.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
@@ -65,7 +66,7 @@ class DetailFragment : Fragment() {
             view.txt_details_repo_title.text = detail.fullName
         }
         view.txt_details_stars.text = getString(R.string.number_stars,detail.starCount)
-        Glide.with(requireContext())
+        GlideApp.with(requireContext())
             .load(detail.avatarUrl)
             .into(view.img_details_avatar)
     }
