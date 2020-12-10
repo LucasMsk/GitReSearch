@@ -66,6 +66,11 @@ class SearchFragment : Fragment() {
     private fun setupObservers() {
         viewModel.repoList.observe(viewLifecycleOwner, Observer {
             searchAdapter.setRepoList(it.items)
+            if(viewModel.shouldScrollTop.value!!) {
+                //Scroll to top
+                recyclerView_search.scrollToPosition(0)
+                viewModel.shouldScrollTop.postValue(false)
+            }
         })
         viewModel.errorMsg.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             if (it != "")
@@ -75,10 +80,15 @@ class SearchFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
 
             if(it) {
-                progressBar_search.visibility = View.VISIBLE
                 GlideApp.get(requireContext()).clearMemory()
+                if(viewModel.shouldScrollTop.value!!) progressBar_search_first.visibility = View.VISIBLE
+                else progressBar_search.visibility = View.VISIBLE
+
             }
-            else progressBar_search.visibility = View.INVISIBLE
+            else {
+                progressBar_search.visibility = View.INVISIBLE
+                progressBar_search_first.visibility = View.INVISIBLE
+            }
         })
 
         viewModel.isLastPage.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
@@ -99,9 +109,8 @@ class SearchFragment : Fragment() {
                 if(viewModel.lastSearch.value != text && text.isNotEmpty()) {
                     //Eliminate case e.g. we search "test" go to repo details go back and search for "tester" than search again for "test"
                     viewModel.lastSearch.postValue("")
+                    viewModel.shouldScrollTop.postValue(true)
                     viewModel.handlePagination(text,true)
-                    //Scroll to top
-                    recyclerView_search.scrollToPosition(0)
                 }
                 else if(text.isBlank()) {
                     searchAdapter.setRepoList(ArrayList<Repo>())
@@ -133,6 +142,7 @@ class SearchFragment : Fragment() {
                 val totalItems = layoutManager.itemCount
                 val lastItem = firstItem + visibleItems >= totalItems
                 if(lastItem && firstItem > 0 && scrolling && !txt_searchBar.text.isNullOrBlank()) {
+                    viewModel.shouldScrollTop.postValue(false)
                     viewModel.handlePagination(txt_searchBar.text.toString(), false)
                     scrolling = false
                 }
@@ -147,7 +157,8 @@ class SearchFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-
+        viewModel.isLoading.postValue(false)
+        viewModel.shouldScrollTop.postValue(false)
         //Do not show previous error msg going back from DetailFragment
         viewModel.errorMsg.postValue("")
         //Do not search again going back from DetailFragment

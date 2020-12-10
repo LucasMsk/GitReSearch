@@ -15,6 +15,7 @@ class SearchViewModel : ViewModel() {
     var lastSearch = MutableLiveData<String>()
     val isLoading = MutableLiveData(false)
     val isLastPage = MutableLiveData(false)
+    val shouldScrollTop = MutableLiveData(false)
     private val searchRepository = SearchRepository()
     private val totalItemsPerQuery = 30
     private var paginatedRepoList: SearchResponse? = null
@@ -42,9 +43,7 @@ class SearchViewModel : ViewModel() {
     }
      fun getRepoList(searchString: String) {
 
-         if(searchPage == 1) isLoading.postValue(false)
-         else isLoading.postValue(true)
-
+        isLoading.postValue(true)
         viewModelScope.launch {
             when (val retrofitPost = searchRepository.searchRequest(searchString, searchPage.toString())) {
                 is Result.Success -> {
