@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("search/repositories?page=all&")
-    suspend fun getSearchList(@Query("q") searchString : String) : Response<SearchResponse>
+    suspend fun getSearchList(@Query("q") searchString : String, @Query("page") searchPage : String) : Response<SearchResponse>
 
     @GET("repos/{fullName}")
     suspend fun getCommitList(@Path("fullName", encoded = true) fullName: String) : Response<List<CommitResponse>>
