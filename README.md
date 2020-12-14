@@ -1,1 +1,1 @@
-Search through Github repositories with this andoird app.
+Search through Github repositories with this android app.
